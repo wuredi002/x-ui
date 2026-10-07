@@ -17,12 +17,18 @@ func NewXrayController(g *gin.RouterGroup) *XrayController {
 }
 
 func (a *XrayController) initRouter(g *gin.RouterGroup) {
+	// Clash clients fetch subscriptions without a panel session. The per-user
+	// HMAC token on this route acts as the subscription credential.
+	g.GET("/sub/:userId/:token", a.clashSubscription)
+
 	panel := g.Group("/xray")
 	panel.Use(a.checkLogin)
 
 	panel.GET("/", a.index)
 	panel.GET("/inbounds", a.inbounds)
 	panel.GET("/setting", a.setting)
+	panel.POST("/clashSubscription", a.getClashSubscriptionURL)
+	panel.POST("/sharePrefix", a.getSharePrefix)
 
 	NewInboundController(panel)
 	NewSettingController(panel)
@@ -35,6 +41,11 @@ func (a *XrayController) initRouter(g *gin.RouterGroup) {
 	legacy.GET("/setting", func(c *gin.Context) {
 		c.Redirect(http.StatusTemporaryRedirect, c.GetString("base_path")+"xray/setting")
 	})
+}
+
+func (a *XrayController) getSharePrefix(c *gin.Context) {
+	country, ip := detectCountryAndPublicIPv4()
+	jsonObj(c, countryIPPrefix(country, ip), nil)
 }
 
 func (a *XrayController) index(c *gin.Context) {
