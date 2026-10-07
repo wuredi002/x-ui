@@ -74,7 +74,7 @@ func html(c *gin.Context, name string, title string, data gin.H) {
 	if data == nil {
 		data = gin.H{}
 	}
-	data["title"] = title
+	data["title"] = title + " - Xray 面板"
 	data["request_uri"] = c.Request.RequestURI
 	data["base_path"] = c.GetString("base_path")
 	c.HTML(http.StatusOK, name, getContext(data))

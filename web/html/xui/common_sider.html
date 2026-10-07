@@ -34,6 +34,10 @@
 
 {{define "commonSider"}}
 <a-layout-sider id="sider" collapsible breakpoint="md" collapsed-width="0">
+    <div class="panel-brand">
+        <a-icon type="deployment-unit"></a-icon>
+        <span>Xray 面板</span>
+    </div>
     <a-menu theme="dark" mode="inline" :selected-keys="['{{ .request_uri }}']"
             @click="({key}) => key.startsWith('http') ? window.open(key) : location.href = key">
         {{template "menuItems" .}}
@@ -44,6 +48,10 @@
           :visible="siderDrawer.visible" :wrap-style="{ padding: 0 }">
     <div class="drawer-handle" @click="siderDrawer.change()" slot="handle">
         <a-icon :type="siderDrawer.visible ? 'close' : 'menu-fold'"></a-icon>
+    </div>
+    <div class="panel-brand">
+        <a-icon type="deployment-unit"></a-icon>
+        <span>Xray 面板</span>
     </div>
     <a-menu theme="light" mode="inline" :selected-keys="['{{ .request_uri }}']"
         @click="({key}) => key.startsWith('http') ? window.open(key) : location.href = key">

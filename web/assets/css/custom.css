@@ -6,6 +6,21 @@
     width: 100%;
 }
 
+.panel-brand {
+    height: 52px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+#sider-drawer .panel-brand {
+    color: rgba(0, 0, 0, 0.85);
+}
+
 .ant-layout-sider-zero-width-trigger {
     display: none;
 }
