@@ -2,11 +2,35 @@
 <!-- tls enable -->
 <a-form layout="inline" v-if="inbound.canSetTls()">
     <a-form-item label="tls">
-        <a-switch v-model="inbound.tls">
+        <a-switch v-model="inbound.tls" :disabled="inbound.protocol === Protocols.HYSTERIA">
         </a-switch>
     </a-form-item>
     <a-form-item v-if="inbound.canEnableXTls()" label="xtls">
         <a-switch v-model="inbound.xtls"></a-switch>
+    </a-form-item>
+    <a-form-item v-if="inbound.canEnableReality()" label="REALITY">
+        <a-switch v-model="inbound.stream.isReality"></a-switch>
+    </a-form-item>
+</a-form>
+
+<a-form v-if="inbound.stream.isReality" layout="inline">
+    <a-form-item label="伪装目标">
+        <a-input v-model.trim="inbound.stream.reality.target" placeholder="www.example.com:443"></a-input>
+    </a-form-item>
+    <a-form-item label="Server Names">
+        <a-input v-model.trim="inbound.stream.reality.serverNames[0]" placeholder="www.example.com"></a-input>
+    </a-form-item>
+    <a-form-item label="Private Key">
+        <a-input v-model.trim="inbound.stream.reality.privateKey"></a-input>
+    </a-form-item>
+    <a-form-item label="Public Key（分享链接）">
+        <a-input v-model.trim="inbound.stream.reality.publicKey"></a-input>
+    </a-form-item>
+    <a-form-item label="Short ID">
+        <a-input v-model.trim="inbound.stream.reality.shortIds[0]" placeholder="留空或最多 16 位偶数长度十六进制"></a-input>
+    </a-form-item>
+    <a-form-item>
+        <a-alert message="使用 xray x25519 生成密钥对；将 private key 配置到此处，将 public key 填入分享链接字段。" type="info" show-icon></a-alert>
     </a-form-item>
 </a-form>
 
@@ -45,7 +69,7 @@
         </a-form-item>
     </template>
 </a-form>
-<a-form layout="inline" v-else-if = "inbound.stream.network === 'tcp' ">
+<a-form layout="inline" v-else-if = "!inbound.stream.isReality && inbound.stream.network === 'tcp' ">
     <a-form-item label="tcp-acceptProxyProtocol">
         <a-switch v-model="inbound.stream.tcp.acceptProxyProtocol"></a-switch>
     </a-form-item>

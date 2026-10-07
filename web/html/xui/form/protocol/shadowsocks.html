@@ -6,7 +6,7 @@
         </a-select>
     </a-form-item>
     <a-form-item label="密码">
-        <a-input v-model.trim="inbound.settings.password"></a-input>
+        <a-input v-model.trim="inbound.settings.password" placeholder="2022 加密请填写 Base64 预共享密钥"></a-input>
     </a-form-item>
     <a-form-item label="网络">
         <a-select v-model="inbound.settings.network" style="width: 100px;">
@@ -16,4 +16,7 @@
         </a-select>
     </a-form-item>
 </a-form>
+<a-alert v-if="inbound.settings.method.indexOf('2022-') === 0"
+         message="Shadowsocks 2022 密钥：AES-128 使用 16 字节，AES-256 / ChaCha20 使用 32 字节；可用 openssl rand -base64 32 生成。"
+         type="info" show-icon></a-alert>
 {{end}}

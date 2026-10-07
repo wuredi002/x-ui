@@ -74,6 +74,11 @@
     {{template "form/shadowsocks"}}
 </template>
 
+<!-- Hysteria 2 -->
+<template v-if="inbound.protocol === Protocols.HYSTERIA">
+    {{template "form/hysteria"}}
+</template>
+
 <!-- dokodemo-door -->
 <template v-if="inbound.protocol === Protocols.DOKODEMO">
     {{template "form/dokodemo"}}
