@@ -102,9 +102,7 @@ func (a *XrayController) clashSubscription(c *gin.Context) {
 func decorateProxyNames(proxies []map[string]interface{}, country, publicIP string) {
 	prefix := countryIPPrefix(country, publicIP)
 	for _, proxy := range proxies {
-		if name, ok := proxy["name"].(string); ok {
-			proxy["name"] = prefix + "-" + name
-		}
+		proxy["name"] = prefix
 	}
 }
 

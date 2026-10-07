@@ -14,7 +14,6 @@ import (
 
 const countryLookupUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
-const nodeNameAuthor = "wuredi002"
 const nodeNameNetworkTag = "网路跳越"
 
 var countryIPCache struct {
@@ -47,7 +46,7 @@ func countryIPPrefix(country, ip string) string {
 	if ip != "" {
 		parts = append(parts, ip)
 	}
-	parts = append(parts, nodeNameAuthor, nodeNameNetworkTag)
+	parts = append(parts, nodeNameNetworkTag)
 	return strings.Join(parts, "-")
 }
 

@@ -26,7 +26,7 @@ jobs:
 
             - 新增 Clash Meta 订阅，支持 VMess、VLESS、Trojan、Shadowsocks 和 Hysteria2 节点。
             - 为 Reality、Vision、XHTTP 等 VLESS 配置生成 Mihomo 兼容订阅。
-            - 订阅节点名和分享链接添加国家、公网 IPv4、wuredi002、网路跳越及节点备注。
+            - 分享链接和订阅节点名格式为“国家-公网 IPv4-网路跳越”。
             - 使用 Go 1.27 构建，并打包 Xray 与 geo 数据文件。
           draft: false
           prerelease: false

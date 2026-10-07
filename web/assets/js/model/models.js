@@ -152,9 +152,7 @@ class DBInbound {
 
     genLink() {
         const inbound = this.toInbound();
-        const remark = DBInbound.sharePrefix
-            ? `${DBInbound.sharePrefix}-${this.remark}`
-            : this.remark;
+        const remark = DBInbound.sharePrefix || this.remark;
         return inbound.genLink(this.address, remark);
     }
 }
