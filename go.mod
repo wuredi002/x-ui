@@ -1,4 +1,4 @@
-module x-ui
+module xray
 
 go 1.26.0
 

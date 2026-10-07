@@ -34,7 +34,10 @@ func GetLogLevel() LogLevel {
 	if IsDebug() {
 		return Debug
 	}
-	logLevel := os.Getenv("XUI_LOG_LEVEL")
+	logLevel := os.Getenv("XRAY_LOG_LEVEL")
+	if logLevel == "" {
+		logLevel = os.Getenv("XUI_LOG_LEVEL")
+	}
 	if logLevel == "" {
 		return Info
 	}
@@ -42,9 +45,16 @@ func GetLogLevel() LogLevel {
 }
 
 func IsDebug() bool {
-	return os.Getenv("XUI_DEBUG") == "true"
+	return os.Getenv("XRAY_DEBUG") == "true" || os.Getenv("XUI_DEBUG") == "true"
 }
 
 func GetDBPath() string {
-	return fmt.Sprintf("/etc/%s/%s.db", GetName(), GetName())
+	path := fmt.Sprintf("/etc/%s/%s.db", GetName(), GetName())
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		legacyPath := "/etc/x-ui/x-ui.db"
+		if _, legacyErr := os.Stat(legacyPath); legacyErr == nil {
+			return legacyPath
+		}
+	}
+	return path
 }

@@ -13,13 +13,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"x-ui/config"
-	"x-ui/logger"
-	"x-ui/util/common"
-	"x-ui/web/controller"
-	"x-ui/web/job"
-	"x-ui/web/network"
-	"x-ui/web/service"
+	"xray/config"
+	"xray/logger"
+	"xray/util/common"
+	"xray/web/controller"
+	"xray/web/job"
+	"xray/web/network"
+	"xray/web/service"
 
 	"github.com/BurntSushi/toml"
 	"github.com/gin-contrib/sessions"
@@ -83,7 +83,7 @@ type Server struct {
 
 	index  *controller.IndexController
 	server *controller.ServerController
-	xui    *controller.XUIController
+	xray   *controller.XrayController
 
 	xrayService    service.XrayService
 	settingService service.SettingService
@@ -205,7 +205,7 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 
 	s.index = controller.NewIndexController(g)
 	s.server = controller.NewServerController(g)
-	s.xui = controller.NewXUIController(g)
+	s.xray = controller.NewXrayController(g)
 
 	return engine, nil
 }

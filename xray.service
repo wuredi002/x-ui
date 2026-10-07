@@ -1,12 +1,12 @@
 [Unit]
-Description=x-ui Service
+Description=xray Service
 After=network.target
 Wants=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/usr/local/x-ui/
-ExecStart=/usr/local/x-ui/x-ui
+WorkingDirectory=/usr/local/xray/
+ExecStart=/usr/local/xray/xray
 
 [Install]
 WantedBy=multi-user.target

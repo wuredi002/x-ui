@@ -1,6 +1,6 @@
 package job
 
-import "x-ui/web/service"
+import "xray/web/service"
 
 type CheckXrayRunningJob struct {
 	xrayService service.XrayService

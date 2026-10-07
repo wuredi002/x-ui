@@ -2,9 +2,9 @@ package service
 
 import (
 	"errors"
-	"x-ui/database"
-	"x-ui/database/model"
-	"x-ui/logger"
+	"xray/database"
+	"xray/database/model"
+	"xray/logger"
 
 	"gorm.io/gorm"
 )

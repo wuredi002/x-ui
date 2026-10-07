@@ -7,8 +7,8 @@ import (
 	"io/fs"
 	"os"
 	"path"
-	"x-ui/config"
-	"x-ui/database/model"
+	"xray/config"
+	"xray/database/model"
 )
 
 var db *gorm.DB

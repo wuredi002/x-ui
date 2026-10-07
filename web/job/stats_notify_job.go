@@ -7,9 +7,9 @@ import (
 
 	"time"
 
-	"x-ui/logger"
-	"x-ui/util/common"
-	"x-ui/web/service"
+	"xray/logger"
+	"xray/util/common"
+	"xray/web/service"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -57,7 +57,7 @@ func (j *StatsNotifyJob) SendMsgToTgbot(msg string) {
 	bot.Send(info)
 }
 
-//Here run is a interface method of Job interface
+// Here run is a interface method of Job interface
 func (j *StatsNotifyJob) Run() {
 	if !j.xrayService.IsXrayRunning() {
 		return

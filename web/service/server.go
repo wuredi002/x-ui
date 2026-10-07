@@ -17,9 +17,9 @@ import (
 	"os"
 	"runtime"
 	"time"
-	"x-ui/logger"
-	"x-ui/util/sys"
-	"x-ui/xray"
+	"xray/logger"
+	"xray/util/sys"
+	"xray/xray"
 )
 
 type ProcessState string
