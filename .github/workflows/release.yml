@@ -22,9 +22,10 @@ jobs:
           tag_name: ${{ github.ref_name }}
           release_name: ${{ github.ref_name }}
           body: |
-            Xray 面板 0.5.3
+            Xray 面板 0.5.4
 
-            - 更新 Go 模块依赖，使用 Xray-core v1.260327.0，并要求 Go 1.26 或更新版本。
+            - 更新 Go 模块依赖并使用 Go 1.27.0 构建。
+            - 使用 Xray-core v1.260327.0。
             - 为面板公共模板补充简体中文语言标记、静态资源缓存刷新和弹窗可访问性标签。
             - 保留 0.5.2 的简体中文界面、设备连接设置与节点功能。
           draft: false
