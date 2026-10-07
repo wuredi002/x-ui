@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 {{template "head" .}}
 <style>
     @media (min-width: 769px) {
@@ -17,7 +17,7 @@
     {{ template "commonSider" . }}
     <a-layout id="content-layout">
         <a-layout-content>
-            <a-spin :spinning="spinning" :delay="500" tip="loading">
+            <a-spin :spinning="spinning" :delay="500" tip="加载中">
                 <transition name="list" appear>
                     <a-tag v-if="false" color="red" style="margin-bottom: 10px">
                         Please go to the panel settings as soon as possible to modify the username and password, otherwise there may be a risk of leaking account information

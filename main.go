@@ -86,9 +86,9 @@ func resetSetting() {
 	settingService := service.SettingService{}
 	err = settingService.ResetSettings()
 	if err != nil {
-		fmt.Println("reset setting failed:", err)
+		fmt.Println("重置设置失败：", err)
 	} else {
-		fmt.Println("reset setting success")
+		fmt.Println("设置已重置")
 	}
 }
 
@@ -97,82 +97,22 @@ func showSetting(show bool) {
 		settingService := service.SettingService{}
 		port, err := settingService.GetPort()
 		if err != nil {
-			fmt.Println("get current port fialed,error info:", err)
+			fmt.Println("读取面板端口失败：", err)
 		}
 		userService := service.UserService{}
 		userModel, err := userService.GetFirstUser()
 		if err != nil {
-			fmt.Println("get current user info failed,error info:", err)
+			fmt.Println("读取用户信息失败：", err)
 		}
 		username := userModel.Username
 		userpasswd := userModel.Password
 		if (username == "") || (userpasswd == "") {
-			fmt.Println("current username or password is empty")
+			fmt.Println("当前用户名或密码为空")
 		}
-		fmt.Println("current pannel settings as follows:")
-		fmt.Println("username:", username)
-		fmt.Println("userpasswd:", userpasswd)
-		fmt.Println("port:", port)
-	}
-}
-
-func updateTgbotEnableSts(status bool) {
-	settingService := service.SettingService{}
-	currentTgSts, err := settingService.GetTgbotenabled()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	logger.Infof("current enabletgbot status[%v],need update to status[%v]", currentTgSts, status)
-	if currentTgSts != status {
-		err := settingService.SetTgbotenabled(status)
-		if err != nil {
-			fmt.Println(err)
-			return
-		} else {
-			logger.Infof("SetTgbotenabled[%v] success", status)
-		}
-	}
-	return
-}
-
-func updateTgbotSetting(tgBotToken string, tgBotChatid int, tgBotRuntime string) {
-	err := database.InitDB(config.GetDBPath())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	settingService := service.SettingService{}
-
-	if tgBotToken != "" {
-		err := settingService.SetTgBotToken(tgBotToken)
-		if err != nil {
-			fmt.Println(err)
-			return
-		} else {
-			logger.Info("updateTgbotSetting tgBotToken success")
-		}
-	}
-
-	if tgBotRuntime != "" {
-		err := settingService.SetTgbotRuntime(tgBotRuntime)
-		if err != nil {
-			fmt.Println(err)
-			return
-		} else {
-			logger.Infof("updateTgbotSetting tgBotRuntime[%s] success", tgBotRuntime)
-		}
-	}
-
-	if tgBotChatid != 0 {
-		err := settingService.SetTgBotChatId(tgBotChatid)
-		if err != nil {
-			fmt.Println(err)
-			return
-		} else {
-			logger.Info("updateTgbotSetting tgBotChatid success")
-		}
+		fmt.Println("当前面板设置：")
+		fmt.Println("用户名：", username)
+		fmt.Println("密码：", userpasswd)
+		fmt.Println("端口：", port)
 	}
 }
 
@@ -188,18 +128,18 @@ func updateSetting(port int, username string, password string) {
 	if port > 0 {
 		err := settingService.SetPort(port)
 		if err != nil {
-			fmt.Println("set port failed:", err)
+			fmt.Println("设置端口失败：", err)
 		} else {
-			fmt.Printf("set port %v success", port)
+			fmt.Printf("面板端口已设置为 %v\n", port)
 		}
 	}
 	if username != "" || password != "" {
 		userService := service.UserService{}
 		err := userService.UpdateFirstUser(username, password)
 		if err != nil {
-			fmt.Println("set username and password failed:", err)
+			fmt.Println("设置用户名或密码失败：", err)
 		} else {
-			fmt.Println("set username and password success")
+			fmt.Println("用户名和密码已更新")
 		}
 	}
 }
@@ -211,42 +151,46 @@ func main() {
 	}
 
 	var showVersion bool
-	flag.BoolVar(&showVersion, "v", false, "show version")
+	flag.BoolVar(&showVersion, "v", false, "显示版本")
 
 	runCmd := flag.NewFlagSet("run", flag.ExitOnError)
 
 	v2uiCmd := flag.NewFlagSet("v2-ui", flag.ExitOnError)
 	var dbPath string
-	v2uiCmd.StringVar(&dbPath, "db", "/etc/v2-ui/v2-ui.db", "set v2-ui db file path")
+	v2uiCmd.StringVar(&dbPath, "db", "/etc/v2-ui/v2-ui.db", "设置 v2-ui 数据库路径")
 
 	settingCmd := flag.NewFlagSet("setting", flag.ExitOnError)
 	var port int
 	var username string
 	var password string
-	var tgbottoken string
-	var tgbotchatid int
-	var enabletgbot bool
-	var tgbotRuntime string
 	var reset bool
 	var show bool
-	settingCmd.BoolVar(&reset, "reset", false, "reset all settings")
-	settingCmd.BoolVar(&show, "show", false, "show current settings")
-	settingCmd.IntVar(&port, "port", 0, "set panel port")
-	settingCmd.StringVar(&username, "username", "", "set login username")
-	settingCmd.StringVar(&password, "password", "", "set login password")
-	settingCmd.StringVar(&tgbottoken, "tgbottoken", "", "set telegrame bot token")
-	settingCmd.StringVar(&tgbotRuntime, "tgbotRuntime", "", "set telegrame bot cron time")
-	settingCmd.IntVar(&tgbotchatid, "tgbotchatid", 0, "set telegrame bot chat id")
-	settingCmd.BoolVar(&enabletgbot, "enabletgbot", false, "enable telegram bot notify")
+	settingCmd.BoolVar(&reset, "reset", false, "重置所有设置")
+	settingCmd.BoolVar(&show, "show", false, "显示当前设置")
+	settingCmd.IntVar(&port, "port", 0, "设置面板端口")
+	settingCmd.StringVar(&username, "username", "", "设置登录用户名")
+	settingCmd.StringVar(&password, "password", "", "设置登录密码")
 
-	oldUsage := flag.Usage
+	runCmd.Usage = func() {
+		fmt.Println("用法：xray run")
+	}
+	v2uiCmd.Usage = func() {
+		fmt.Println("用法：xray v2-ui [-db 数据库路径]")
+		v2uiCmd.PrintDefaults()
+	}
+	settingCmd.Usage = func() {
+		fmt.Println("用法：xray setting [选项]")
+		settingCmd.PrintDefaults()
+	}
 	flag.Usage = func() {
-		oldUsage()
+		fmt.Println("用法：xray [选项] <命令>")
+		fmt.Println("全局选项：")
+		flag.PrintDefaults()
 		fmt.Println()
-		fmt.Println("Commands:")
-		fmt.Println("    run            run web panel")
-		fmt.Println("    v2-ui          migrate form v2-ui")
-		fmt.Println("    setting        set settings")
+		fmt.Println("可用命令：")
+		fmt.Println("    run            启动面板")
+		fmt.Println("    v2-ui          从 v2-ui 导入数据")
+		fmt.Println("    setting        管理面板设置")
 	}
 
 	flag.Parse()
@@ -287,11 +231,8 @@ func main() {
 		if show {
 			showSetting(show)
 		}
-		if (tgbottoken != "") || (tgbotchatid != 0) || (tgbotRuntime != "") {
-			updateTgbotSetting(tgbottoken, tgbotchatid, tgbotRuntime)
-		}
 	default:
-		fmt.Println("except 'run' or 'v2-ui' or 'setting' subcommands")
+		fmt.Println("请使用 run、v2-ui 或 setting 命令")
 		fmt.Println()
 		runCmd.Usage()
 		fmt.Println()
