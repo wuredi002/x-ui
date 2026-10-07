@@ -6,7 +6,7 @@
               @click="downloader.download(txtModal.fileName, txtModal.content)">
         {{ i18n "download" }} [[ txtModal.fileName ]]
     </a-button>
-    <a-input type="textarea" v-model="txtModal.content"
+    <a-input type="textarea" aria-label="文本内容" v-model="txtModal.content"
              :autosize="{ minRows: 10, maxRows: 20}"></a-input>
 </a-modal>
 
@@ -16,7 +16,6 @@
         title: '',
         content: '',
         fileName: '',
-        qrcode: null,
         clipboard: null,
         visible: false,
         show: function (title='', content='', fileName='') {
@@ -30,15 +29,6 @@
                         text: () => this.content,
                     });
                     this.clipboard.on('success', () => app.$message.success('{{ i18n "copied" }}'));
-                }
-                if (this.qrcode === null) {
-                    this.qrcode = new QRious({
-                        element: document.querySelector('#qrCode'),
-                        size: 260,
-                        value: content,
-                    });
-                } else {
-                    this.qrcode.value = content;
                 }
             });
         },
