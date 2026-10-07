@@ -415,6 +415,27 @@ class GrpcStreamSettings extends XrayCommonClass {
     }
 }
 
+class XhttpStreamSettings extends XrayCommonClass {
+    constructor(host='', path='/', mode='auto') {
+        super();
+        this.host = host;
+        this.path = path;
+        this.mode = mode;
+    }
+
+    static fromJson(json={}) {
+        return new XhttpStreamSettings(json.host, json.path, json.mode);
+    }
+
+    toJson() {
+        return {
+            host: this.host,
+            path: this.path,
+            mode: this.mode,
+        };
+    }
+}
+
 class TlsStreamSettings extends XrayCommonClass {
     constructor(serverName='',
                 certificates=[new TlsStreamSettings.Cert()], alpn=[]) {
@@ -505,6 +526,7 @@ class StreamSettings extends XrayCommonClass {
                 httpSettings=new HttpStreamSettings(),
                 quicSettings=new QuicStreamSettings(),
                 grpcSettings=new GrpcStreamSettings(),
+                xhttpSettings=new XhttpStreamSettings(),
                 ) {
         super();
         this.network = network;
@@ -516,6 +538,7 @@ class StreamSettings extends XrayCommonClass {
         this.http = httpSettings;
         this.quic = quicSettings;
         this.grpc = grpcSettings;
+        this.xhttp = xhttpSettings;
     }
 
     get isTls() {
@@ -559,6 +582,7 @@ class StreamSettings extends XrayCommonClass {
             HttpStreamSettings.fromJson(json.httpSettings),
             QuicStreamSettings.fromJson(json.quicSettings),
             GrpcStreamSettings.fromJson(json.grpcSettings),
+            XhttpStreamSettings.fromJson(json.xhttpSettings),
         );
     }
 
@@ -575,6 +599,7 @@ class StreamSettings extends XrayCommonClass {
             httpSettings: network === 'http' ? this.http.toJson() : undefined,
             quicSettings: network === 'quic' ? this.quic.toJson() : undefined,
             grpcSettings: network === 'grpc' ? this.grpc.toJson() : undefined,
+            xhttpSettings: network === 'xhttp' ? this.xhttp.toJson() : undefined,
         };
     }
 }
@@ -827,6 +852,7 @@ class Inbound extends XrayCommonClass {
             case "http":
             case "quic":
             case "grpc":
+            case "xhttp":
                 return true;
             default:
                 return false;
@@ -921,6 +947,10 @@ class Inbound extends XrayCommonClass {
             path = this.stream.quic.key;
         } else if (network === 'grpc') {
             path = this.stream.grpc.serviceName;
+        } else if (network === 'xhttp') {
+            const xhttp = this.stream.xhttp;
+            path = xhttp.path;
+            host = xhttp.host;
         }
 
         if (this.stream.security === 'tls') {
@@ -940,6 +970,7 @@ class Inbound extends XrayCommonClass {
             type: type,
             host: host,
             path: path,
+            mode: network === 'xhttp' ? this.stream.xhttp.mode : undefined,
             tls: this.stream.security,
         };
         return 'vmess://' + base64(JSON.stringify(obj, null, 2));
@@ -998,6 +1029,12 @@ class Inbound extends XrayCommonClass {
             case "grpc":
                 const grpc = this.stream.grpc;
                 params.set("serviceName", grpc.serviceName);
+                break;
+            case "xhttp":
+                const xhttp = this.stream.xhttp;
+                params.set("path", xhttp.path);
+                params.set("host", xhttp.host);
+                params.set("mode", xhttp.mode);
                 break;
         }
 

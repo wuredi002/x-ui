@@ -65,7 +65,9 @@ type Status struct {
 }
 
 type Release struct {
-	TagName string `json:"tag_name"`
+	TagName    string `json:"tag_name"`
+	Prerelease bool   `json:"prerelease"`
+	Draft      bool   `json:"draft"`
 }
 
 type ServerService struct {
@@ -192,6 +194,9 @@ func (s *ServerService) GetXrayVersions() ([]string, error) {
 	}
 	versions := make([]string, 0, len(releases))
 	for _, release := range releases {
+		if release.Prerelease || release.Draft {
+			continue
+		}
 		versions = append(versions, release.TagName)
 	}
 	return versions, nil

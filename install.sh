@@ -75,10 +75,53 @@ fi
 
 install_base() {
     if [[ x"${release}" == x"centos" ]]; then
-        yum install wget curl tar -y
+        yum install wget curl tar unzip -y
     else
-        apt install wget curl tar -y
+        apt install wget curl tar unzip -y
     fi
+}
+
+download_latest_xray() {
+    local xray_arch
+    case "$arch" in
+        amd64) xray_arch="64" ;;
+        arm64) xray_arch="arm64-v8a" ;;
+        s390x) xray_arch="s390x" ;;
+        *)
+            echo -e "${red}不支持下载 Xray 的系统架构: ${arch}${plain}"
+            return 1
+            ;;
+    esac
+
+    xray_version=$(curl -fsSL https://api.github.com/repos/XTLS/Xray-core/releases/latest \
+        | sed -n 's/.*"tag_name": "\([^"]*\)".*/\1/p' | head -n 1)
+    if [[ -z "$xray_version" ]]; then
+        echo -e "${red}获取 Xray 最新稳定版失败${plain}"
+        return 1
+    fi
+
+    xray_tmp_dir=$(mktemp -d)
+    local xray_archive="Xray-linux-${xray_arch}.zip"
+    local xray_url="https://github.com/XTLS/Xray-core/releases/download/${xray_version}/${xray_archive}"
+    if ! curl -fLsS --retry 3 -o "${xray_tmp_dir}/${xray_archive}" "$xray_url"; then
+        echo -e "${red}下载 Xray ${xray_version} 失败${plain}"
+        rm -rf -- "$xray_tmp_dir"
+        xray_tmp_dir=""
+        return 1
+    fi
+    if ! unzip -oq "${xray_tmp_dir}/${xray_archive}" -d "$xray_tmp_dir"; then
+        echo -e "${red}解压 Xray ${xray_version} 失败${plain}"
+        rm -rf -- "$xray_tmp_dir"
+        xray_tmp_dir=""
+        return 1
+    fi
+    if [[ ! -s "${xray_tmp_dir}/xray" || ! -s "${xray_tmp_dir}/geosite.dat" || ! -s "${xray_tmp_dir}/geoip.dat" ]]; then
+        echo -e "${red}Xray ${xray_version} 安装包缺少必要文件${plain}"
+        rm -rf -- "$xray_tmp_dir"
+        xray_tmp_dir=""
+        return 1
+    fi
+    echo -e "检测到 Xray 最新稳定版：${xray_version}"
 }
 
 #This function will be called when user installed x-ui out of sercurity
@@ -129,6 +172,8 @@ install_x-ui() {
         fi
     fi
 
+    download_latest_xray || exit 1
+
     if [[ -e /usr/local/x-ui/ ]]; then
         rm /usr/local/x-ui/ -rf
     fi
@@ -136,6 +181,11 @@ install_x-ui() {
     tar zxvf x-ui-linux-${arch}.tar.gz
     rm x-ui-linux-${arch}.tar.gz -f
     cd x-ui
+    install -m 755 "${xray_tmp_dir}/xray" "bin/xray-linux-${arch}"
+    install -m 644 "${xray_tmp_dir}/geosite.dat" "bin/geosite.dat"
+    install -m 644 "${xray_tmp_dir}/geoip.dat" "bin/geoip.dat"
+    rm -rf -- "$xray_tmp_dir"
+    xray_tmp_dir=""
     chmod +x x-ui bin/xray-linux-${arch}
     cp -f x-ui.service /etc/systemd/system/
     wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/vaxilu/x-ui/main/x-ui.sh

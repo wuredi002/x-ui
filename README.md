@@ -7,7 +7,8 @@
 - 系统状态监控
 - 支持多用户多协议，网页可视化操作
 - 支持的协议：vmess、vless、trojan、shadowsocks、dokodemo-door、socks、http
-- 支持配置更多传输配置
+- 支持 tcp、kcp、ws、http、quic、grpc 和 xhttp 传输
+- 安装时自动安装 Xray 最新稳定版
 - 流量统计，限制流量，限制到期时间
 - 可自定义 xray 配置模板
 - 支持 https 访问面板（自备域名 + ssl 证书）
