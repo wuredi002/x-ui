@@ -1,4 +1,4 @@
-# Xray 面板
+# X-ray 面板
 
 支持多协议多用户的 xray 面板
 
@@ -112,9 +112,6 @@ docker run -itd --network=host \
 xray v2-ui
 ```
 
-## issue 关闭
-
-各种小白问题看得血压很高
 
 ## Stargazers over time
 
