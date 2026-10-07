@@ -60,7 +60,13 @@ func detectCountryAndPublicIPv4() (string, string) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 	defer cancel()
-	client := &http.Client{Timeout: 2 * time.Second}
+	transport := &http.Transport{
+		DialContext: func(ctx context.Context, _, address string) (net.Conn, error) {
+			return (&net.Dialer{Timeout: 2 * time.Second}).DialContext(ctx, "tcp4", address)
+		},
+	}
+	defer transport.CloseIdleConnections()
+	client := &http.Client{Timeout: 2 * time.Second, Transport: transport}
 	publicIP := ""
 	for _, endpoint := range publicIPv4Services {
 		request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
@@ -93,7 +99,11 @@ func detectCountryAndPublicIPv4() (string, string) {
 	}
 	countryIPCache.country = country
 	countryIPCache.ip = publicIP
-	countryIPCache.expires = time.Now().Add(30 * time.Minute)
+	cacheDuration := 30 * time.Minute
+	if publicIP == "" {
+		cacheDuration = time.Minute
+	}
+	countryIPCache.expires = time.Now().Add(cacheDuration)
 	return country, publicIP
 }
 

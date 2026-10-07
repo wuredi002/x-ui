@@ -8,6 +8,9 @@
 - 支持多用户多协议，网页可视化操作
 - 支持的协议：vmess、vless、trojan、shadowsocks（含 2022）、Hysteria 2、dokodemo-door、socks、http
 - 支持 tcp、kcp、ws、http、quic、grpc 和 xhttp 传输，以及 VLESS Reality
+- 支持生成 Clash Meta（Mihomo）订阅，包含 VMess、VLESS、Trojan、Shadowsocks 和 Hysteria 2 节点
+- 分享链接和订阅节点名格式为“国家-公网 IPv4-wuredi002-网路跳越-节点备注”
+- 在入站列表点击“Clash Meta 订阅”即可复制订阅地址；该地址包含访问令牌，请勿公开分享
 - TLS 可配置最低/最高版本及 Cipher Suites；Reality 支持随机生成伪装目标/SNI 与 uTLS 分享链接指纹
 - 可配置嗅探目标类型、metadataOnly 与 routeOnly
 - 简体中文界面，不限制设备数量
