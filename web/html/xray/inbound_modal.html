@@ -72,6 +72,16 @@
                 if (oldValue === 'kcp') {
                     this.inModal.inbound.tls = false;
                 }
+            },
+            randomReality() {
+                const hosts = [
+                    'www.cloudflare.com', 'www.apple.com', 'www.amazon.com',
+                    'www.wikipedia.org', 'www.adobe.com', 'www.oracle.com',
+                    'www.samsung.com', 'www.speedtest.net'
+                ];
+                const host = hosts[Math.floor(Math.random() * hosts.length)];
+                this.inModal.inbound.stream.reality.target = host + ':443';
+                this.inModal.inbound.stream.reality.serverNames = [host];
             }
         }
     });

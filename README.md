@@ -6,8 +6,10 @@
 
 - 系统状态监控
 - 支持多用户多协议，网页可视化操作
-- 支持的协议：vmess、vless、trojan、shadowsocks、dokodemo-door、socks、http
-- 支持 tcp、kcp、ws、http、quic、grpc 和 xhttp 传输
+- 支持的协议：vmess、vless、trojan、shadowsocks（含 2022）、Hysteria 2、dokodemo-door、socks、http
+- 支持 tcp、kcp、ws、http、quic、grpc 和 xhttp 传输，以及 VLESS Reality
+- TLS 可配置最低/最高版本及 Cipher Suites；Reality 支持随机生成伪装目标/SNI 与 uTLS 分享链接指纹
+- 可配置嗅探目标类型、metadataOnly 与 routeOnly
 - 安装时自动安装 Xray 最新稳定版
 - 流量统计，限制流量，限制到期时间
 - 可自定义 xray 配置模板

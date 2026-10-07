@@ -21,6 +21,13 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           release_name: ${{ github.ref_name }}
+          body: |
+            Xray Panel 0.5.1
+
+            - TLS: configure minimum/maximum TLS versions and cipher suites.
+            - Reality: generate a non-Microsoft camouflage target/SNI pair and choose the uTLS fingerprint exported in VLESS links.
+            - Sniffing: configure destination protocols, metadataOnly, and routeOnly.
+            - Update the panel version and protocol documentation.
           draft: false
           prerelease: false
   linuxamd64build:

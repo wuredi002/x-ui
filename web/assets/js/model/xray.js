@@ -443,11 +443,14 @@ class XhttpStreamSettings extends XrayCommonClass {
 
 class TlsStreamSettings extends XrayCommonClass {
     constructor(serverName='',
-                certificates=[new TlsStreamSettings.Cert()], alpn=[]) {
+                certificates=[new TlsStreamSettings.Cert()], alpn=[], minVersion='', maxVersion='', cipherSuites=[]) {
         super();
         this.server = serverName;
         this.certs = certificates;
         this.alpn = alpn;
+        this.minVersion = minVersion;
+        this.maxVersion = maxVersion;
+        this.cipherSuites = cipherSuites;
     }
 
     addCert(cert) {
@@ -467,7 +470,10 @@ class TlsStreamSettings extends XrayCommonClass {
         return new TlsStreamSettings(
             json.serverName,
             certs,
-            json.alpn
+            json.alpn,
+            json.minVersion,
+            json.maxVersion,
+            json.cipherSuites
         );
     }
 
@@ -475,7 +481,10 @@ class TlsStreamSettings extends XrayCommonClass {
         return {
             serverName: this.server,
             certificates: TlsStreamSettings.toJsonArray(this.certs),
-            alpn: this.alpn
+            alpn: this.alpn,
+            minVersion: this.minVersion,
+            maxVersion: this.maxVersion,
+            cipherSuites: this.cipherSuites
         };
     }
 }
@@ -522,23 +531,24 @@ TlsStreamSettings.Cert = class extends XrayCommonClass {
 };
 
 class RealityStreamSettings extends XrayCommonClass {
-    constructor(target='', serverNames=[], privateKey='', publicKey='', shortIds=['']) {
+    constructor(target='', serverNames=[], privateKey='', publicKey='', shortIds=[''], fingerprint='chrome') {
         super();
         this.target = target;
         this.serverNames = serverNames;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
         this.shortIds = shortIds;
+        this.fingerprint = fingerprint;
     }
 
     static fromJson(json={}) {
         return new RealityStreamSettings(json.target || json.dest || '', json.serverNames || [],
-            json.privateKey || '', json.publicKey || '', json.shortIds || ['']);
+            json.privateKey || '', json.publicKey || '', json.shortIds || [''], json.fingerprint || 'chrome');
     }
 
     toJson() {
         return { show: false, target: this.target, xver: 0, serverNames: this.serverNames,
-            privateKey: this.privateKey, shortIds: this.shortIds, publicKey: this.publicKey };
+            privateKey: this.privateKey, shortIds: this.shortIds, publicKey: this.publicKey, fingerprint: this.fingerprint };
     }
 }
 
@@ -662,10 +672,12 @@ class StreamSettings extends XrayCommonClass {
 }
 
 class Sniffing extends XrayCommonClass {
-    constructor(enabled=true, destOverride=['http', 'tls']) {
+    constructor(enabled=true, destOverride=['http', 'tls'], metadataOnly=false, routeOnly=false) {
         super();
         this.enabled = enabled;
         this.destOverride = destOverride;
+        this.metadataOnly = metadataOnly;
+        this.routeOnly = routeOnly;
     }
 
     static fromJson(json={}) {
@@ -678,7 +690,13 @@ class Sniffing extends XrayCommonClass {
         return new Sniffing(
             !!json.enabled,
             destOverride,
+            !!json.metadataOnly,
+            !!json.routeOnly,
         );
+    }
+
+    toJson() {
+        return { enabled: this.enabled, destOverride: this.destOverride, metadataOnly: this.metadataOnly, routeOnly: this.routeOnly };
     }
 }
 
@@ -1117,7 +1135,7 @@ class Inbound extends XrayCommonClass {
         if (this.stream.security === 'reality') {
             const reality = this.stream.reality;
             params.set('sni', reality.serverNames[0] || '');
-            params.set('fp', 'chrome');
+            params.set('fp', reality.fingerprint || 'chrome');
             params.set('pbk', reality.publicKey);
             params.set('sid', reality.shortIds[0] || '');
             params.set('spx', '/');

@@ -12,5 +12,19 @@
             </span>
     <a-switch v-model="inbound.sniffing.enabled"></a-switch>
   </a-form-item>
+  <a-form-item v-if="inbound.sniffing.enabled" label="目标类型">
+    <a-select v-model="inbound.sniffing.destOverride" mode="multiple" style="min-width: 220px">
+      <a-select-option value="http">HTTP</a-select-option>
+      <a-select-option value="tls">TLS</a-select-option>
+      <a-select-option value="quic">QUIC</a-select-option>
+      <a-select-option value="fakedns">FakeDNS</a-select-option>
+    </a-select>
+  </a-form-item>
+  <a-form-item v-if="inbound.sniffing.enabled" label="仅元数据嗅探">
+    <a-switch v-model="inbound.sniffing.metadataOnly"></a-switch>
+  </a-form-item>
+  <a-form-item v-if="inbound.sniffing.enabled" label="仅用于路由">
+    <a-switch v-model="inbound.sniffing.routeOnly"></a-switch>
+  </a-form-item>
 </a-form>
 {{end}}
