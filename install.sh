@@ -156,20 +156,20 @@ install_xray() {
     cd /usr/local/
 
     if [ $# == 0 ]; then
-        last_version=$(curl -Ls "https://api.github.com/repos/wuredi002/x-ui/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        last_version=$(curl -Ls "https://api.github.com/repos/wuredi002/xray/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         if [[ ! -n "$last_version" ]]; then
             echo -e "${red}检测 xray 版本失败，可能是超出 Github API 限制，请稍后再试，或手动指定 xray 版本安装${plain}"
             exit 1
         fi
         echo -e "检测到 xray 最新版本：${last_version}，开始安装"
-        wget -N --no-check-certificate -O /usr/local/xray-linux-${arch}.tar.gz https://github.com/wuredi002/x-ui/releases/download/${last_version}/xray-linux-${arch}.tar.gz
+        wget -N --no-check-certificate -O /usr/local/xray-linux-${arch}.tar.gz https://github.com/wuredi002/xray/releases/download/${last_version}/xray-linux-${arch}.tar.gz
         if [[ $? -ne 0 ]]; then
             echo -e "${red}下载 xray 失败，请确保你的服务器能够下载 Github 的文件${plain}"
             exit 1
         fi
     else
         last_version=$1
-        url="https://github.com/wuredi002/x-ui/releases/download/${last_version}/xray-linux-${arch}.tar.gz"
+        url="https://github.com/wuredi002/xray/releases/download/${last_version}/xray-linux-${arch}.tar.gz"
         echo -e "开始安装 xray v$1"
         wget -N --no-check-certificate -O /usr/local/xray-linux-${arch}.tar.gz ${url}
         if [[ $? -ne 0 ]]; then
@@ -194,7 +194,7 @@ install_xray() {
     xray_tmp_dir=""
     chmod +x xray bin/xray-linux-${arch}
     cp -f xray.service /etc/systemd/system/
-    wget --no-check-certificate -O /usr/bin/xray https://raw.githubusercontent.com/wuredi002/x-ui/main/xray.sh
+    wget --no-check-certificate -O /usr/bin/xray https://raw.githubusercontent.com/wuredi002/xray/main/xray.sh
     chmod +x /usr/local/xray/xray.sh
     chmod +x /usr/bin/xray
     rm -f /usr/bin/x-ui

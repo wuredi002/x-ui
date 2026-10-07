@@ -18,12 +18,12 @@
 # 安装&升级
 
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/wuredi002/x-ui/main/install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/wuredi002/xray/main/install.sh)
 ```
 
 ## 手动安装&升级
 
-1. 首先从 https://github.com/wuredi002/x-ui/releases 下载最新的压缩包，一般选择 `amd64`架构
+1. 首先从 https://github.com/wuredi002/xray/releases 下载最新的压缩包，一般选择 `amd64`架构
 2. 然后将这个压缩包上传到服务器的 `/root/`目录下，并使用 `root`用户登录服务器
 
 > 如果你的服务器 cpu 架构不是 `amd64`，自行将命令中的 `amd64`替换为其他架构
@@ -54,7 +54,7 @@ curl -fsSL https://get.docker.com | sh
 2. 安装xray
 
 ```shell
-git clone https://github.com/wuredi002/x-ui.git xray-panel
+git clone https://github.com/wuredi002/xray.git xray-panel
 cd xray-panel
 docker build -t xray-panel:latest .
 docker run -itd --network=host \
@@ -137,4 +137,4 @@ xray v2-ui
 
 ## Stargazers over time
 
-[![Stargazers over time](https://starchart.cc/wuredi002/x-ui.svg)](https://starchart.cc/wuredi002/x-ui)
+[![Stargazers over time](https://starchart.cc/wuredi002/xray.svg)](https://starchart.cc/wuredi002/xray)
