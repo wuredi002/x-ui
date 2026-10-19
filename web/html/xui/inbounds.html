@@ -238,12 +238,8 @@
                     okText: '添加',
                     confirm: async (inbound, dbInbound) => {
                         inModal.loading();
-                        const added = await this.addInbound(inbound, dbInbound);
-                        if (added) {
-                            inModal.close();
-                        } else {
-                            inModal.loading(false);
-                        }
+                        await this.addInbound(inbound, dbInbound);
+                        inModal.close();
                     }
                 });
             },
@@ -262,14 +258,6 @@
                 });
             },
             async addInbound(inbound, dbInbound) {
-                if (!String(dbInbound.remark || '').trim()) {
-                    const detected = await HttpUtil.post('/xui/inbound/detect-remark');
-                    if (!detected.success || !detected.obj || !detected.obj.remark) {
-                        this.$message.error(detected.msg || '自动识别国家和公网 IPv4 失败，请填写备注后重试');
-                        return false;
-                    }
-                    dbInbound.remark = detected.obj.remark;
-                }
                 const data = {
                     up: dbInbound.up,
                     down: dbInbound.down,
@@ -285,7 +273,7 @@
                     streamSettings: inbound.stream.toString(),
                     sniffing: inbound.canSniffing() ? inbound.sniffing.toString() : '{}',
                 };
-                return await this.submit('/xui/inbound/add', data, inModal);
+                await this.submit('/xui/inbound/add', data, inModal);
             },
             async updateInbound(inbound, dbInbound) {
                 const data = {
@@ -343,7 +331,6 @@
                 if (msg.success) {
                     await this.getDBInbounds();
                 }
-                return msg.success;
             },
         },
         watch: {
@@ -369,31 +356,6 @@
         },
     });
 
-    // The inbound form is rendered by the shared modal, so delegate the button click.
-    document.addEventListener('click', async (event) => {
-        const button = event.target.closest('#detect-inbound-remark');
-        if (!button) return;
-        event.preventDefault();
-        button.disabled = true;
-        try {
-            const msg = await HttpUtil.post('/xui/inbound/detect-remark');
-            if (!msg.success || !msg.obj || !msg.obj.remark) {
-                app.$message.error(msg.msg || '自动识别国家和公网 IPv4 失败');
-                return;
-            }
-            const input = document.getElementById('inbound-remark-input');
-            if (input) {
-                input.value = msg.obj.remark;
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-            app.$message.success('备注已识别：' + msg.obj.remark);
-        } catch (error) {
-            app.$message.error('自动识别失败：' + error.message);
-        } finally {
-            button.disabled = false;
-        }
-    });
 </script>
 {{template "inboundModal"}}
 {{template "promptModal"}}
