@@ -5,7 +5,6 @@ go 1.26.0
 require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/Workiva/go-datastructures v1.1.8
-    github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/gin-contrib/sessions v1.1.2
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-ole/go-ole v1.3.0 // indirect
