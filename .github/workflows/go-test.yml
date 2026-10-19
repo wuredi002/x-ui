@@ -19,8 +19,10 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - name: Tidy Go modules
-        run: go mod tidy
+      - name: Upgrade and tidy Go modules
+        run: |
+          go get -u ./...
+          go mod tidy
       - name: Commit tidy module metadata
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
