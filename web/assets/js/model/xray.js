@@ -502,7 +502,7 @@ class RealityStreamSettings extends XrayCommonClass {
         this.publicKey=publicKey;this.fingerprint=fingerprint;this.spiderX=spiderX;
     }
     static fromJson(j={}){return new RealityStreamSettings(j.target||j.dest||'',j.serverNames||[],j.privateKey||'',j.shortIds||[''],j.publicKey||'',j.fingerprint||'chrome',j.spiderX||'/');}
-    toJson(){return {target:this.target,serverNames:this.serverNames,privateKey:this.privateKey,shortIds:this.shortIds,publicKey:this.publicKey,fingerprint:this.fingerprint,spiderX:this.spiderX};}
+    toJson(){return {dest:this.target,serverNames:this.serverNames,privateKey:this.privateKey,shortIds:this.shortIds,publicKey:this.publicKey,fingerprint:this.fingerprint,spiderX:this.spiderX};}
 }
 class StreamSettings extends XrayCommonClass {
     constructor(network='tcp',
