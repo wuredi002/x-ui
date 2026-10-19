@@ -90,6 +90,37 @@ func resetSetting() {
 	}
 }
 
+func showSetting() {
+	if err := database.InitDB(config.GetDBPath()); err != nil {
+		fmt.Println("get current settings failed:", err)
+		os.Exit(1)
+	}
+
+	settingService := service.SettingService{}
+	port, err := settingService.GetPort()
+	if err != nil {
+		fmt.Println("get panel port failed:", err)
+		os.Exit(1)
+	}
+	basePath, err := settingService.GetBasePath()
+	if err != nil {
+		fmt.Println("get panel base path failed:", err)
+		os.Exit(1)
+	}
+	userService := service.UserService{}
+	user, err := userService.GetFirstUser()
+	if err != nil {
+		fmt.Println("get login username failed:", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("当前面板设置:")
+	fmt.Printf("用户名: %s\\n", user.Username)
+	fmt.Printf("端口: %d\\n", port)
+	fmt.Printf("访问路径: %s\\n", basePath)
+	fmt.Println("密码: 为安全起见不显示")
+}
+
 func updateSetting(port int, username string, password string) {
 	err := database.InitDB(config.GetDBPath())
 	if err != nil {
@@ -138,7 +169,9 @@ func main() {
 	var username string
 	var password string
 	var reset bool
+	var showSettings bool
 	settingCmd.BoolVar(&reset, "reset", false, "reset all setting")
+	settingCmd.BoolVar(&showSettings, "show", false, "show current settings")
 	settingCmd.IntVar(&port, "port", 0, "set panel port")
 	settingCmd.StringVar(&username, "username", "", "set login username")
 	settingCmd.StringVar(&password, "password", "", "set login password")
@@ -183,7 +216,9 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		if reset {
+		if showSettings {
+			showSetting()
+		} else if reset {
 			resetSetting()
 		} else {
 			updateSetting(port, username, password)
