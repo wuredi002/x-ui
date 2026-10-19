@@ -1,45 +1,31 @@
 {{define "form/tlsSettings"}}
-<!-- tls enable -->
 <a-form layout="inline" v-if="inbound.canSetTls()">
-    <a-form-item label="tls">
-        <a-switch v-model="inbound.tls">
-        </a-switch>
-    </a-form-item>
-    <a-form-item v-if="inbound.canEnableXTls()" label="xtls">
-        <a-switch v-model="inbound.xtls"></a-switch>
-    </a-form-item>
+    <a-form-item label="传输安全"><a-select v-model="inbound.stream.security" style="width:150px;">
+        <a-select-option value="none">none</a-select-option><a-select-option value="tls">TLS</a-select-option>
+        <a-select-option v-if="inbound.network === 'tcp' || inbound.network === 'xhttp' || inbound.network === 'grpc'" value="reality">REALITY</a-select-option>
+    </a-select></a-form-item>
 </a-form>
-
-<!-- tls settings -->
-<a-form v-if="inbound.tls || inbound.xtls"
-        layout="inline">
-    <a-form-item label="域名">
-        <a-input v-model.trim="inbound.stream.tls.server"></a-input>
-    </a-form-item>
-    <a-form-item label="证书">
-        <a-radio-group v-model="inbound.stream.tls.certs[0].useFile"
-                       button-style="solid">
-            <a-radio-button :value="true">certificate file path</a-radio-button>
-            <a-radio-button :value="false">certificate file content</a-radio-button>
-        </a-radio-group>
-    </a-form-item>
+<a-form v-if="inbound.stream.security === 'tls'" layout="inline">
+    <a-form-item label="域名"><a-input v-model.trim="inbound.stream.tls.server"></a-input></a-form-item>
+    <a-form-item label="证书"><a-radio-group v-model="inbound.stream.tls.certs[0].useFile" button-style="solid">
+        <a-radio-button :value="true">certificate file path</a-radio-button><a-radio-button :value="false">certificate file content</a-radio-button>
+    </a-radio-group></a-form-item>
     <template v-if="inbound.stream.tls.certs[0].useFile">
-        <a-form-item label="公钥文件路径">
-            <a-input v-model.trim="inbound.stream.tls.certs[0].certFile"></a-input>
-        </a-form-item>
-        <a-form-item label="密钥文件路径">
-            <a-input v-model.trim="inbound.stream.tls.certs[0].keyFile"></a-input>
-        </a-form-item>
+        <a-form-item label="公钥文件路径"><a-input v-model.trim="inbound.stream.tls.certs[0].certFile"></a-input></a-form-item>
+        <a-form-item label="密钥文件路径"><a-input v-model.trim="inbound.stream.tls.certs[0].keyFile"></a-input></a-form-item>
+    </template><template v-else>
+        <a-form-item label="公钥内容"><a-input type="textarea" :rows="2" v-model="inbound.stream.tls.certs[0].cert"></a-input></a-form-item>
+        <a-form-item label="密钥内容"><a-input type="textarea" :rows="2" v-model="inbound.stream.tls.certs[0].key"></a-input></a-form-item>
     </template>
-    <template v-else>
-        <a-form-item label="公钥内容">
-            <a-input type="textarea" :rows="2"
-                     v-model="inbound.stream.tls.certs[0].cert"></a-input>
-        </a-form-item>
-        <a-form-item label="密钥内容">
-            <a-input type="textarea" :rows="2"
-                     v-model="inbound.stream.tls.certs[0].key"></a-input>
-        </a-form-item>
-    </template>
+</a-form>
+<a-form v-if="inbound.stream.security === 'reality'" layout="inline">
+    <a-form-item label="Target"><a-input v-model.trim="inbound.stream.reality.target" placeholder="example.com:443"></a-input></a-form-item>
+    <a-form-item label="Server Names"><a-input :value="inbound.stream.reality.serverNames.join(',')" @change="inbound.stream.reality.serverNames=$event.target.value.split(',').map(v=>v.trim()).filter(Boolean)"></a-input></a-form-item>
+    <a-form-item label="Private Key"><a-input v-model.trim="inbound.stream.reality.privateKey"></a-input></a-form-item>
+    <a-form-item label="Short IDs"><a-input :value="inbound.stream.reality.shortIds.join(',')" @change="inbound.stream.reality.shortIds=$event.target.value.split(',').map(v=>v.trim())"></a-input></a-form-item>
+    <a-form-item label="Client Public Key"><a-input v-model.trim="inbound.stream.reality.publicKey"></a-input></a-form-item>
+    <a-form-item label="Fingerprint"><a-input v-model.trim="inbound.stream.reality.fingerprint"></a-input></a-form-item>
+    <a-form-item label="SpiderX"><a-input v-model.trim="inbound.stream.reality.spiderX"></a-input></a-form-item>
+    <a-alert type="warning" show-icon message="REALITY publicKey 用于客户端分享链接，须与 privateKey 配对。" />
 </a-form>
 {{end}}

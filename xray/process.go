@@ -229,6 +229,12 @@ func (p *process) Stop() error {
 	return p.cmd.Process.Kill()
 }
 
+func parseTrafficStat(name string) (isInbound bool, tag string, isDown bool, ok bool) {
+    matches := trafficRegex.FindStringSubmatch(name)
+    if len(matches) != 4 { return false, "", false, false }
+    return matches[1] == "inbound", matches[2], matches[3] == "downlink", true
+}
+
 func (p *process) GetTraffic(reset bool) ([]*Traffic, error) {
 	if p.apiPort == 0 {
 		return nil, common.NewError("xray api port wrong:", p.apiPort)
@@ -252,10 +258,8 @@ func (p *process) GetTraffic(reset bool) ([]*Traffic, error) {
 	tagTrafficMap := map[string]*Traffic{}
 	traffics := make([]*Traffic, 0)
 	for _, stat := range resp.GetStat() {
-		matchs := trafficRegex.FindStringSubmatch(stat.Name)
-		isInbound := matchs[1] == "inbound"
-		tag := matchs[2]
-		isDown := matchs[3] == "downlink"
+		isInbound, tag, isDown, ok := parseTrafficStat(stat.Name)
+		if !ok { continue }
 		if tag == "api" {
 			continue
 		}

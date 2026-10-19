@@ -485,6 +485,25 @@ TlsStreamSettings.Cert = class extends XrayCommonClass {
     }
 };
 
+class XHTTPStreamSettings extends XrayCommonClass {
+    constructor(host='',path='/',mode='auto',extra={}){super();this.host=host;this.path=path;this.mode=mode;this.extra=extra&&typeof extra==='object'?extra:{};}
+    static fromJson(j={}){return new XHTTPStreamSettings(j.host||'',j.path||'/',j.mode||'auto',j.extra||{});}
+    toJson(){return {host:this.host,path:this.path,mode:this.mode,extra:this.extra};}
+}
+class HTTPUpgradeStreamSettings extends XrayCommonClass {
+    constructor(host='',path='/'){super();this.host=host;this.path=path;}
+    static fromJson(j={}){return new HTTPUpgradeStreamSettings(j.host||'',j.path||'/');}
+    toJson(){return {host:this.host,path:this.path};}
+}
+class RealityStreamSettings extends XrayCommonClass {
+    constructor(target='',serverNames=[],privateKey='',shortIds=[''],publicKey='',fingerprint='chrome',spiderX='/'){
+        super();this.target=target;this.serverNames=Array.isArray(serverNames)?serverNames:(serverNames?String(serverNames).split(',').map(v=>v.trim()).filter(Boolean):[]);
+        this.privateKey=privateKey;this.shortIds=Array.isArray(shortIds)?shortIds:(shortIds?String(shortIds).split(',').map(v=>v.trim()):['']);
+        this.publicKey=publicKey;this.fingerprint=fingerprint;this.spiderX=spiderX;
+    }
+    static fromJson(j={}){return new RealityStreamSettings(j.target||j.dest||'',j.serverNames||[],j.privateKey||'',j.shortIds||[''],j.publicKey||'',j.fingerprint||'chrome',j.spiderX||'/');}
+    toJson(){return {target:this.target,serverNames:this.serverNames,privateKey:this.privateKey,shortIds:this.shortIds,publicKey:this.publicKey,fingerprint:this.fingerprint,spiderX:this.spiderX};}
+}
 class StreamSettings extends XrayCommonClass {
     constructor(network='tcp',
                 security='none',
@@ -495,6 +514,9 @@ class StreamSettings extends XrayCommonClass {
                 httpSettings=new HttpStreamSettings(),
                 quicSettings=new QuicStreamSettings(),
                 grpcSettings=new GrpcStreamSettings(),
+                xhttpSettings=new XHTTPStreamSettings(),
+                httpupgradeSettings=new HTTPUpgradeStreamSettings(),
+                realitySettings=new RealityStreamSettings(),
                 ) {
         super();
         this.network = network;
@@ -506,6 +528,9 @@ class StreamSettings extends XrayCommonClass {
         this.http = httpSettings;
         this.quic = quicSettings;
         this.grpc = grpcSettings;
+        this.xhttp = xhttpSettings;
+        this.httpupgrade = httpupgradeSettings;
+        this.reality = realitySettings;
     }
 
     get isTls() {
@@ -549,6 +574,9 @@ class StreamSettings extends XrayCommonClass {
             HttpStreamSettings.fromJson(json.httpSettings),
             QuicStreamSettings.fromJson(json.quicSettings),
             GrpcStreamSettings.fromJson(json.grpcSettings),
+            XHTTPStreamSettings.fromJson(json.xhttpSettings),
+            HTTPUpgradeStreamSettings.fromJson(json.httpupgradeSettings),
+            RealityStreamSettings.fromJson(json.realitySettings),
         );
     }
 
@@ -565,6 +593,9 @@ class StreamSettings extends XrayCommonClass {
             httpSettings: network === 'http' ? this.http.toJson() : undefined,
             quicSettings: network === 'quic' ? this.quic.toJson() : undefined,
             grpcSettings: network === 'grpc' ? this.grpc.toJson() : undefined,
+            xhttpSettings: network === 'xhttp' ? this.xhttp.toJson() : undefined,
+            httpupgradeSettings: network === 'httpupgrade' ? this.httpupgrade.toJson() : undefined,
+            realitySettings: this.security === 'reality' ? this.reality.toJson() : undefined,
         };
     }
 }
@@ -825,6 +856,8 @@ class Inbound extends XrayCommonClass {
             case "http":
             case "quic":
             case "grpc":
+            case "xhttp":
+            case "httpupgrade":
                 return true;
             default:
                 return false;
@@ -843,7 +876,7 @@ class Inbound extends XrayCommonClass {
             default:
                 return false;
         }
-        return this.network === "tcp";
+        return this.network === "tcp" || this.network === "xhttp" || this.network === "grpc";
     }
 
     canEnableStream() {
@@ -851,6 +884,7 @@ class Inbound extends XrayCommonClass {
             case Protocols.VMESS:
             case Protocols.VLESS:
             case Protocols.SHADOWSOCKS:
+            case Protocols.TROJAN:
                 return true;
             default:
                 return false;
@@ -997,6 +1031,17 @@ class Inbound extends XrayCommonClass {
                 const grpc = this.stream.grpc;
                 params.set("serviceName", grpc.serviceName);
                 break;
+            case "xhttp":
+                const x = this.stream.xhttp;
+                if(x.host) params.set("host",x.host);
+                if(x.path) params.set("path",x.path);
+                if(x.mode) params.set("mode",x.mode);
+                break;
+            case "httpupgrade":
+                const hu = this.stream.httpupgrade;
+                if(hu.host) params.set("host",hu.host);
+                if(hu.path) params.set("path",hu.path);
+                break;
         }
 
         if (this.stream.security === 'tls') {
@@ -1004,6 +1049,13 @@ class Inbound extends XrayCommonClass {
                 address = this.stream.tls.server;
                 params.set("sni", address);
             }
+        } else if (this.stream.security === 'reality') {
+            const r=this.stream.reality;
+            if(r.serverNames[0]) params.set("sni",r.serverNames[0]);
+            if(r.publicKey) params.set("pbk",r.publicKey);
+            if(r.shortIds[0]) params.set("sid",r.shortIds[0]);
+            if(r.fingerprint) params.set("fp",r.fingerprint);
+            if(r.spiderX) params.set("spx",r.spiderX);
         }
 
         if (this.xtls) {
@@ -1020,18 +1072,23 @@ class Inbound extends XrayCommonClass {
     }
 
     genSSLink(address='', remark='') {
-        let settings = this.settings;
-        const server = this.stream.tls.server;
-        if (!ObjectUtil.isEmpty(server)) {
-            address = server;
-        }
-        return 'ss://' + safeBase64(settings.method + ':' + settings.password + '@' + address + ':' + this.port)
-            + '#' + encodeURIComponent(remark);
+        const settings=this.settings;
+        const credentials=safeBase64(settings.method+':'+settings.password);
+        const host=address.includes(':')&&!address.startsWith('[')?'['+address+']':address;
+        return 'ss://'+credentials+'@'+host+':'+this.port+'#'+encodeURIComponent(remark);
     }
 
     genTrojanLink(address='', remark='') {
-        let settings = this.settings;
-        return `trojan://${settings.clients[0].password}@${address}:${this.port}#${encodeURIComponent(remark)}`;
+        const settings=this.settings,s=this.stream,p=new URLSearchParams();
+        p.set('type',s.network);p.set('security',s.security);
+        if(s.security==='tls'&&s.tls.server)p.set('sni',s.tls.server);
+        if(s.security==='reality'){const r=s.reality;if(r.serverNames[0])p.set('sni',r.serverNames[0]);if(r.publicKey)p.set('pbk',r.publicKey);if(r.shortIds[0])p.set('sid',r.shortIds[0]);if(r.fingerprint)p.set('fp',r.fingerprint);if(r.spiderX)p.set('spx',r.spiderX);}
+        if(s.network==='xhttp'){if(s.xhttp.host)p.set('host',s.xhttp.host);if(s.xhttp.path)p.set('path',s.xhttp.path);if(s.xhttp.mode)p.set('mode',s.xhttp.mode);}
+        else if(s.network==='httpupgrade'){if(s.httpupgrade.host)p.set('host',s.httpupgrade.host);if(s.httpupgrade.path)p.set('path',s.httpupgrade.path);}
+        else if(s.network==='grpc')p.set('serviceName',s.grpc.serviceName);
+        else if(s.network==='ws'){p.set('path',s.ws.path);const h=s.ws.getHeader('Host');if(h)p.set('host',h);}
+        if(this.flow)p.set('flow',this.flow);const q=p.toString();
+        return `trojan://${encodeURIComponent(settings.clients[0].password)}@${address}:${this.port}${q?'?'+q:''}#${encodeURIComponent(remark)}`;
     }
 
     genLink(address='', remark='') {
