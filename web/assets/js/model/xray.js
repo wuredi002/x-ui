@@ -1057,8 +1057,10 @@ class Inbound extends XrayCommonClass {
             if(r.spiderX) params.set("spx",r.spiderX);
         }
 
-        if (this.xtls) {
-            params.set("flow", this.settings.vlesses[0].flow);
+        // VLESS flow is also relevant to TLS/REALITY links (not only legacy XTLS).
+        if (this.xtls || this.stream.security === 'tls' || this.stream.security === 'reality') {
+            const flow = this.settings.vlesses[0].flow;
+            if (flow) params.set("flow", flow);
         }
 
         const host = address.includes(':') && !address.startsWith('[') ? `[${address}]` : address;
