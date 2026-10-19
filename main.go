@@ -118,7 +118,7 @@ func showSetting() {
 	fmt.Printf("用户名: %s\\n", user.Username)
 	fmt.Printf("端口: %d\\n", port)
 	fmt.Printf("访问路径: %s\\n", basePath)
-	fmt.Println("密码: 为安全起见不显示")
+	fmt.Println("密码:", user.Password)
 }
 
 func updateSetting(port int, username string, password string) {
