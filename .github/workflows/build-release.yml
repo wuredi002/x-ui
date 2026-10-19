@@ -5,6 +5,11 @@ on:
     tags:
       - '0.*'
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing tag to rebuild and upload release assets for (for example, 0.3.5)"
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -15,6 +20,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -51,10 +58,11 @@ jobs:
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
         shell: bash
         run: |
           set -euo pipefail
-          tag="${GITHUB_REF_NAME}"
+          tag="$RELEASE_TAG"
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" dist/x-ui-linux-amd64.tar.gz dist/x-ui-linux-arm64.tar.gz --clobber
             gh release edit "$tag" --title "x-ui $tag"
