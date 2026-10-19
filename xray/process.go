@@ -10,6 +10,7 @@ import (
 	"github.com/Workiva/go-datastructures/queue"
 	statsservice "github.com/xtls/xray-core/app/stats/command"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -232,7 +233,7 @@ func (p *process) GetTraffic(reset bool) ([]*Traffic, error) {
 	if p.apiPort == 0 {
 		return nil, common.NewError("xray api port wrong:", p.apiPort)
 	}
-	conn, err := grpc.Dial(fmt.Sprintf("127.0.0.1:%v", p.apiPort), grpc.WithInsecure())
+	conn, err := grpc.NewClient(fmt.Sprintf("127.0.0.1:%v", p.apiPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

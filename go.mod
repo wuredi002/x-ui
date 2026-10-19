@@ -1,6 +1,6 @@
 module x-ui
 
-go 1.16
+go 1.26
 
 require (
 	github.com/BurntSushi/toml v0.3.1
@@ -14,11 +14,12 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/shirou/gopsutil v3.21.3+incompatible
 	github.com/tklauser/go-sysconf v0.3.5 // indirect
-	github.com/xtls/xray-core v1.4.2
+	github.com/xtls/xray-core v1.260327.0
 	go.uber.org/atomic v1.7.0
-	golang.org/x/sys v0.0.0-20210511113859-b0526f3d8744 // indirect
-	golang.org/x/text v0.3.6
-	google.golang.org/grpc v1.38.0
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/text v0.42.0
+	google.golang.org/grpc v1.84.0
+	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.21.9

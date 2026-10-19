@@ -30,10 +30,22 @@ jobs:
           for arch in amd64 arm64; do
             root="dist/package-${arch}/x-ui"
             mkdir -p "$root/bin"
+            tmp="$(mktemp -d)"
+            if [ "$arch" = "amd64" ]; then
+              asset="Xray-linux-64.zip"
+            else
+              asset="Xray-linux-arm64-v8a.zip"
+            fi
+            curl -fsSL "https://github.com/XTLS/Xray-core/releases/download/v26.3.27/$asset" -o "$tmp/xray.zip"
+            unzip -q "$tmp/xray.zip" -d "$tmp/unpacked"
+            test -x "$tmp/unpacked/xray"
+            install -m 755 "$tmp/unpacked/xray" "$root/bin/xray-linux-${arch}"
+            install -m 644 "$tmp/unpacked/geoip.dat" "$root/bin/geoip.dat"
+            install -m 644 "$tmp/unpacked/geosite.dat" "$root/bin/geosite.dat"
             CGO_ENABLED=0 GOOS=linux GOARCH="$arch" go build -trimpath -ldflags="-s -w" -o "$root/x-ui" .
-            cp -a bin/. "$root/bin/"
             cp x-ui.service x-ui.sh "$root/"
             tar -C "dist/package-${arch}" -czf "dist/x-ui-linux-${arch}.tar.gz" x-ui
+            rm -rf "$tmp"
           done
 
       - name: Publish GitHub Release
