@@ -11,6 +11,7 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.6.1
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	gopkg.in/yaml.v3 v3.0.1
+    github.com/robfig/cron/v3 v3.0.1
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/tklauser/go-sysconf v0.4.0 // indirect
 	github.com/xtls/xray-core v1.260327.0
