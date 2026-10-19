@@ -1046,8 +1046,7 @@ class Inbound extends XrayCommonClass {
 
         if (this.stream.security === 'tls') {
             if (!ObjectUtil.isEmpty(this.stream.tls.server)) {
-                address = this.stream.tls.server;
-                params.set("sni", address);
+                params.set("sni", this.stream.tls.server);
             }
         } else if (this.stream.security === 'reality') {
             const r=this.stream.reality;
@@ -1062,7 +1061,8 @@ class Inbound extends XrayCommonClass {
             params.set("flow", this.settings.vlesses[0].flow);
         }
 
-        const link = `vless://${uuid}@${address}:${port}`;
+        const host = address.includes(':') && !address.startsWith('[') ? `[${address}]` : address;
+        const link = `vless://${uuid}@${host}:${port}`;
         const url = new URL(link);
         for (const [key, value] of params) {
             url.searchParams.set(key, value)
@@ -1088,7 +1088,8 @@ class Inbound extends XrayCommonClass {
         else if(s.network==='grpc')p.set('serviceName',s.grpc.serviceName);
         else if(s.network==='ws'){p.set('path',s.ws.path);const h=s.ws.getHeader('Host');if(h)p.set('host',h);}
         if(this.flow)p.set('flow',this.flow);const q=p.toString();
-        return `trojan://${encodeURIComponent(settings.clients[0].password)}@${address}:${this.port}${q?'?'+q:''}#${encodeURIComponent(remark)}`;
+        const host=address.includes(':')&&!address.startsWith('[')?`[${address}]`:address;
+        return `trojan://${encodeURIComponent(settings.clients[0].password)}@${host}:${this.port}${q?'?'+q:''}#${encodeURIComponent(remark)}`;
     }
 
     genLink(address='', remark='') {
