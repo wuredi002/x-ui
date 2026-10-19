@@ -10,6 +10,11 @@ on:
         description: "Existing tag to rebuild and upload release assets for (for example, 0.3.5)"
         required: false
         type: string
+      source_ref:
+        description: "Git ref to build from (use main to include current fixes)"
+        required: false
+        default: "main"
+        type: string
 
 permissions:
   contents: write
@@ -21,7 +26,7 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.release_tag || github.ref }}
+          ref: ${{ inputs.source_ref || inputs.release_tag || github.ref }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
