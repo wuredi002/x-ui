@@ -17,27 +17,18 @@ func init() {
 
 func SetLoginUser(c *gin.Context, user *model.User) error {
 	s := sessions.Default(c)
-	if user == nil {
-		s.Delete(loginUser)
-		return s.Save()
-	}
-	// Store a value matching the registered gob type and the reader below.
-	s.Set(loginUser, *user)
+	s.Set(loginUser, user)
 	return s.Save()
 }
 
 func GetLoginUser(c *gin.Context) *model.User {
 	s := sessions.Default(c)
 	obj := s.Get(loginUser)
-	switch user := obj.(type) {
-	case model.User:
-		return &user
-	case *model.User:
-		// Accept pointer-form sessions for compatibility with existing session data.
-		return user
-	default:
+	if obj == nil {
 		return nil
 	}
+	user := obj.(model.User)
+	return &user
 }
 
 func IsLogin(c *gin.Context) bool {
