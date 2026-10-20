@@ -56,14 +56,20 @@ func (a *IndexController) login(c *gin.Context) {
 	}
 	user := a.userService.CheckUser(form.Username, form.Password)
 	if user == nil {
-		logger.Infof("wrong username or password: \"%s\" \"%s\"", form.Username, form.Password)
+		// Never write passwords to logs.
+		logger.Infof("login rejected for username %q", form.Username)
 		pureJsonMsg(c, false, "用户名或密码错误")
 		return
 	}
 
-	err = session.SetLoginUser(c, user)
+	if err = session.SetLoginUser(c, user); err != nil {
+		logger.Warning("user", user.Id, "login session save failed:", err)
+		jsonMsg(c, "登录", err)
+		return
+	}
+
 	logger.Info("user", user.Id, "login success")
-	jsonMsg(c, "登录", err)
+	jsonMsg(c, "登录", nil)
 }
 
 func (a *IndexController) logout(c *gin.Context) {
@@ -71,6 +77,8 @@ func (a *IndexController) logout(c *gin.Context) {
 	if user != nil {
 		logger.Info("user", user.Id, "logout")
 	}
-	session.ClearSession(c)
+	if err := session.ClearSession(c); err != nil {
+		logger.Warning("clear logout session failed:", err)
+	}
 	c.Redirect(http.StatusTemporaryRedirect, c.GetString("base_path"))
 }
