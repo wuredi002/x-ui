@@ -44,12 +44,12 @@ func IsLogin(c *gin.Context) bool {
 	return GetLoginUser(c) != nil
 }
 
-func ClearSession(c *gin.Context) {
+func ClearSession(c *gin.Context) error {
 	s := sessions.Default(c)
 	s.Clear()
 	s.Options(sessions.Options{
 		Path:   "/",
 		MaxAge: -1,
 	})
-	s.Save()
+	return s.Save()
 }
